@@ -1,0 +1,28 @@
+//imports jsonwebtoken
+const jwt = require("jsonwebtoken");
+
+//creates async function that if req.headers && req.headers.authorization are true create variable with a value req.headers.authorization.slice(7) and another variable to verify that it matches the correct key
+async function checkJwtToken(req, res, next) {
+  try {
+    if (req.headers && req.headers.authorization) {
+      // console.log(req.headers);
+      // console.log(req.headers.authorization);
+      let jwtToken = req.headers.authorization.slice(7);
+      let decodedJwt = jwt.verify(jwtToken, process.env.PRIVATE_JWT_KEY);
+      console.log(decodedJwt);
+      //console.log(decodedJwt.message);
+      //console.log(decodedJwt.status);
+
+      next();
+      //else show following message
+    } else {
+      throw { message: "You Don't have permission! ", statusCode: 500 };
+    }
+    //catch errors, show them to user, and log them
+  } catch (e) {
+    console.log(e.message);
+    console.log(e.code);
+    res.status(e.statusCode).json({ message: e.message, error: e });
+  }
+}
+module.exports = checkJwtToken;
